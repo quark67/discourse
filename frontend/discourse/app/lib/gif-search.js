@@ -11,12 +11,8 @@ const KLIPY_CATEGORIES_URL = "https://api.klipy.com/v2/categories";
 const PAGE_SIZE = 24;
 const SEARCH_DEBOUNCE = 700;
 
-export const MIN_QUERY_LENGTH = 3;
+const MIN_QUERY_LENGTH = 3;
 
-// Drives a Klipy-backed GIF search: query state, paginated results and featured
-// categories, with the Klipy quirks (file detail, content filter, error
-// mapping, API-key redaction) in one place. Shared by the GIF composer-picker
-// tab and the standalone GIF modal; each owner supplies its own `pick`.
 export default class GifSearch {
   @tracked categories = [];
   @tracked loading = false;
@@ -42,8 +38,6 @@ export default class GifSearch {
     return this.query.length < MIN_QUERY_LENGTH && this.categories.length > 0;
   }
 
-  // Sets the query and searches (debounced). Bound because it is passed
-  // directly as a callback to inputs/load-more controls.
   @action
   refresh(value) {
     this.query = value;

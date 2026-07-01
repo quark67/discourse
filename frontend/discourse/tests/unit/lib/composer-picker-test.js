@@ -49,6 +49,24 @@ module("Unit | Lib | composer-picker", function (hooks) {
     );
   });
 
+  test("gif tab is excluded on surfaces without composer events", function (assert) {
+    assert.deepEqual(
+      composerPickerTabs(this.owner, { composerEvents: false }).map(
+        (tab) => tab.id
+      ),
+      ["emoji"],
+      "drops the gif tab on non-composer editors"
+    );
+
+    assert.deepEqual(
+      composerPickerTabs(this.owner, { composerEvents: true }).map(
+        (tab) => tab.id
+      ),
+      ["emoji", "gifs"],
+      "keeps the gif tab on composer surfaces"
+    );
+  });
+
   test("registered tabs are sorted by priority, highest first", function (assert) {
     registerComposerPickerTab({
       id: "stickers",

@@ -3220,7 +3220,6 @@ en:
       publishing: "Publishing Topic…"
 
     gifs:
-      modal_title: "Search GIFs"
       composer_title: "Insert GIF"
       search_placeholder: "Search GIFs"
       no_results: "Enter a keyword above to search for GIFs."

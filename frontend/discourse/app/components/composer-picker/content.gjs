@@ -13,20 +13,17 @@ import { i18n } from "discourse-i18n";
 
 const LAST_TAB_KEY = "composer_picker_last_tab";
 
-// Generic tabbed picker shell. Hosts one panel per enabled tab (emoji, GIFs,
-// and anything registered via `registerComposerPickerTab`). When a single tab
-// is enabled the tab bar is hidden, so an emoji-only surface looks unchanged.
 export default class ComposerPickerContent extends Component {
   @service keyValueStore;
 
   @tracked activeTabId = null;
 
-  // Unique per instance so the tab/panel ARIA ids don't collide when more than
-  // one picker exists in the DOM.
   idPrefix = guidFor(this);
 
   get tabs() {
-    return composerPickerTabs(getOwner(this));
+    return composerPickerTabs(getOwner(this), {
+      composerEvents: this.args.composerEvents,
+    });
   }
 
   get showTabBar() {
@@ -69,7 +66,6 @@ export default class ComposerPickerContent extends Component {
           {{#each this.tabs as |tab|}}
             <DButton
               class={{dConcatClass
-                "btn-flat"
                 "composer-picker__tab"
                 (if (eq this.activeTab.id tab.id) "--active")
               }}

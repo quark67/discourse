@@ -11,9 +11,6 @@ import dLoadingSpinner from "discourse/ui-kit/helpers/d-loading-spinner";
 import dAutoFocus from "discourse/ui-kit/modifiers/d-auto-focus";
 import { i18n } from "discourse-i18n";
 
-// GIF tab for the composer picker. Search behaviour lives in GifSearch; on pick
-// the generated markdown is handed to the picker shell via `onSelect`, which
-// the host then inserts or sends.
 export default class GifPanel extends Component {
   @service dialog;
   @service siteSettings;
@@ -33,8 +30,6 @@ export default class GifPanel extends Component {
     this.search.destroy();
   }
 
-  // Narrower than the standalone GIF modal so several columns fit in the
-  // compact picker popover.
   get gifBaseWidth() {
     return 150;
   }

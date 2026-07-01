@@ -2,19 +2,19 @@ import ComposerPickerDetached from "discourse/components/composer-picker/detache
 import { composerPickerTabs } from "discourse/lib/composer-picker";
 import { withPluginApi } from "discourse/lib/plugin-api";
 
-// Adds a single composer toolbar button that opens the tabbed picker (emoji,
-// GIFs, and any registered tab). Replaces the previously separate emoji and
-// GIF toolbar buttons.
 export default {
   initialize(owner) {
-    const tabs = composerPickerTabs(owner);
-
-    if (!tabs.length) {
-      return;
-    }
-
     withPluginApi((api) => {
       api.onToolbarCreate((toolbar) => {
+        // Computed per toolbar (not at initialize) so tabs registered by
+        // plugin initializers are visible and GIF is scoped to real composers.
+        const composerEvents = !!toolbar.context?.composerEvents;
+        const tabs = composerPickerTabs(owner, { composerEvents });
+
+        if (!tabs.length) {
+          return;
+        }
+
         toolbar.addButton({
           id: "emoji",
           group: "extras",
@@ -29,11 +29,8 @@ export default {
               modalForMobile: true,
               data: {
                 context: "topic",
+                composerEvents,
                 onSelect: (value, tab) => {
-                  // Route through the toolbar's own text manipulation (the same
-                  // object the emoji tab uses) rather than the composer-only
-                  // `composer:insert-text` app event, so the value isn't
-                  // silently dropped on non-composer editors.
                   const { textManipulation } = toolbar.context;
                   if (tab.id === "emoji") {
                     textManipulation.emojiSelected(value);

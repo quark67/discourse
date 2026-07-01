@@ -5,9 +5,6 @@ import ComposerPickerContent from "discourse/components/composer-picker/content"
 import DMenu from "discourse/float-kit/components/d-menu";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 
-// DMenu-wrapped composer picker, used as an inline trigger button (e.g. the
-// chat composer). For surfaces that open the picker imperatively via the menu
-// service, use `composer-picker/detached` instead.
 export default class ComposerPicker extends Component {
   @tracked menu = null;
 

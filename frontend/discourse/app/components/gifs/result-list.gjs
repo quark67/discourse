@@ -55,7 +55,7 @@ export default class GifsResultList extends Component {
     {{#if @loadMore}}
       <DLoadMore
         @action={{@loadMore}}
-        @root={{if @root @root ".gifs-modal__content"}}
+        @root={{@root}}
         @isLoading={{@loading}}
         @enabled={{this.loadMoreEnabled}}
       />
