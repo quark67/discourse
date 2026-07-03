@@ -1,4 +1,6 @@
 import { registerEmoji } from "pretty-text/emoji";
+import EmojiPickerDetached from "discourse/components/emoji-picker/detached";
+import { withPluginApi } from "discourse/lib/plugin-api";
 import PreloadStore from "discourse/lib/preload-store";
 
 export default {
@@ -9,8 +11,38 @@ export default {
       return;
     }
 
-    // The composer toolbar button is registered by the composer-picker
-    // initializer, which hosts the emoji picker as one tab alongside GIFs.
+    withPluginApi((api) => {
+      api.onToolbarCreate((toolbar) => {
+        // The unified composer-picker initializer hosts emoji as a tab when
+        // its upcoming change is on, so only add the standalone button here
+        // when it is off.
+        if (siteSettings.enable_unified_composer_picker) {
+          return;
+        }
+
+        toolbar.addButton({
+          id: "emoji",
+          group: "extras",
+          icon: "far-face-smile",
+          sendAction: () => {
+            const menu = api.container.lookup("service:menu");
+            menu.show(document.querySelector(".insert-composer-emoji"), {
+              identifier: "emoji-picker",
+              groupIdentifier: "emoji-picker",
+              component: EmojiPickerDetached,
+              modalForMobile: true,
+              data: {
+                didSelectEmoji: (emoji) => {
+                  toolbar.context.textManipulation.emojiSelected(emoji);
+                },
+              },
+            });
+          },
+          title: "composer.emoji",
+          className: "emoji insert-composer-emoji",
+        });
+      });
+    });
 
     (PreloadStore.get("customEmoji") || []).forEach((emoji) =>
       registerEmoji(emoji.name, emoji.url, emoji.group)

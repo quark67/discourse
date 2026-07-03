@@ -4,8 +4,16 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 
 export default {
   initialize(owner) {
+    const siteSettings = owner.lookup("service:site-settings");
+
     withPluginApi((api) => {
       api.onToolbarCreate((toolbar) => {
+        // Gated behind the upcoming change; the legacy emoji/GIF buttons
+        // register instead when it is off.
+        if (!siteSettings.enable_unified_composer_picker) {
+          return;
+        }
+
         // Computed per toolbar (not at initialize) so tabs registered by
         // plugin initializers are visible and GIF is scoped to real composers.
         const composerEvents = !!toolbar.context?.composerEvents;
