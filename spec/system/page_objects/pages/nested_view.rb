@@ -408,6 +408,10 @@ module PageObjects
       end
 
       def scroll_post_near_top(post, offset: 80)
+        # Wait for the post to be in the DOM before scrolling to it. On the
+        # production build the raw querySelector can run before the post has
+        # rendered, returning null.
+        find("[data-post-number='#{post.post_number}']", visible: :all)
         page.execute_script(<<~JS)
           const post = document.querySelector("[data-post-number='#{post.post_number}']");
           post.scrollIntoView();
@@ -417,8 +421,15 @@ module PageObjects
       end
 
       def scroll_past_topic_title
+        # Scroll the nested-view header above the viewport so the site header
+        # takes over the title. Scrolling to `document.body.scrollHeight` is
+        # unreliable while posts are still cloaking, since the page height grows
+        # as they render, so scroll past the header element itself instead.
+        find(".nested-view__header")
         page.execute_script(<<~JS)
-          window.scrollTo(0, document.body.scrollHeight);
+          const header = document.querySelector(".nested-view__header");
+          header.scrollIntoView();
+          window.scrollBy(0, header.offsetHeight + 100);
         JS
         self
       end

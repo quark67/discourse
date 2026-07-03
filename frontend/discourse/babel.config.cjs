@@ -11,6 +11,15 @@ const macros = buildMacros({
 
 const PRODUCTION = process.env.EMBER_ENV === "production";
 
+// System tests can run against a production build for speed, but they rely on
+// dev-only test affordances that are otherwise stripped from production: the
+// `data-test-*` selectors specs query, and the `rails-testing` initializer that
+// defines `window.clientSettled`. KEEP_TEST_CODE=1 retains those while
+// preserving every other production optimization (minification, tree-shaking,
+// @ember/debug stripping).
+const KEEP_TEST_CODE = process.env.KEEP_TEST_CODE === "1";
+const STRIP_TEST_SELECTORS = PRODUCTION && !KEEP_TEST_CODE;
+
 module.exports = {
   plugins: [
     [
@@ -24,7 +33,7 @@ module.exports = {
         ],
         transforms: [
           ...macros.templateMacros,
-          ...(PRODUCTION ? [StripTestSelectors] : []),
+          ...(STRIP_TEST_SELECTORS ? [StripTestSelectors] : []),
         ],
       },
     ],
@@ -53,11 +62,19 @@ module.exports = {
             flags: {
               DEBUG: !PRODUCTION,
               CI: !!process.env.CI,
+              // Retain the `rails-testing` initializer (which defines
+              // `window.clientSettled`) in system-test production builds; it is
+              // stripped from real production builds like the rest of DEBUG.
+              RAILS_TESTING: !PRODUCTION || KEEP_TEST_CODE,
             },
           },
         ],
         debugTools: {
-          isDebug: !PRODUCTION,
+          // Keep `@ember/debug` assertions and deprecations in system-test
+          // production builds so client-side failures stay legible and specs
+          // asserting on deprecations keep working. It is negligible cost at
+          // system-test scale, and stripped from real production builds.
+          isDebug: !PRODUCTION || KEEP_TEST_CODE,
           source: "@ember/debug",
           assertPredicateIndex: 1,
         },
