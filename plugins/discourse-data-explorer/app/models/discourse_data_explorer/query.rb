@@ -46,6 +46,11 @@ module DiscourseDataExplorer
       Slug.for(name).presence || "query-#{id}"
     end
 
+    def record_run!
+      persisted? ? update_columns(last_run_at: Time.now) : update!(last_run_at: Time.now)
+      DiscourseDataExplorer::QueryStat.log(id) if id.positive?
+    end
+
     def self.find(id)
       return super if id.to_i >= 0
       QueryFinder.find(id)
